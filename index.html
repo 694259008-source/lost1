@@ -1,0 +1,1816 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPRU Lost & Found</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@100;200;300;400;500;600;700&display=swap');
+
+    :root {
+      --npru-red: #d71920;
+      --npru-red-dark: #b31319;
+      --npru-red-soft: #fff1f2;
+      --npru-text: #171717;
+      --npru-muted: #6b7280;
+      --npru-border: #ececec;
+      --npru-bg: #fafafa;
+      --npru-shadow: 0 12px 34px rgba(23, 23, 23, .07);
+      --npru-radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body, button, input, select, textarea, .swal2-popup {
+      margin: 0;
+      background:
+        radial-gradient(circle at top right, rgba(215,25,32,.055), transparent 28%),
+        var(--npru-bg);
+      color: var(--npru-text);
+      font-family: 'IBM Plex Sans Thai', system-ui, -apple-system, sans-serif !important;
+    }
+
+    .navbar {
+      background: rgba(255,255,255,.94) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(215,25,32,.08) !important;
+      box-shadow: 0 5px 20px rgba(0,0,0,.04);
+      min-height: 72px;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      letter-spacing: -.3px;
+      color: var(--npru-text) !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      border-radius: 13px;
+      display: inline-grid;
+      place-items: center;
+      background: var(--npru-red);
+      box-shadow: 0 8px 18px rgba(215,25,32,.24);
+    }
+
+    .brand-logo svg {
+      width: 27px;
+      height: 27px;
+    }
+
+    .brand-title { line-height: 1.05; }
+
+    .brand-title small {
+      display: block;
+      margin-top: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .6px;
+      color: var(--npru-red);
+    }
+
+    .navbar-toggler {
+      border: 1px solid var(--npru-border);
+      border-radius: 12px;
+      padding: 8px 10px;
+    }
+
+    .navbar-nav .nav-link {
+      color: #444 !important;
+      font-weight: 600;
+      border-radius: 11px;
+      padding: 9px 12px !important;
+      transition: .18s ease;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link:focus {
+      color: var(--npru-red) !important;
+      background: var(--npru-red-soft);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #f1d7d9;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at 85% 10%, rgba(215,25,32,.08), transparent 25%),
+        linear-gradient(135deg, #fff 0%, #fff7f7 100%);
+      box-shadow: var(--npru-shadow);
+    }
+
+    .page {
+      min-height: calc(100vh - 160px);
+      padding: 40px 0 72px;
+    }
+
+    .hidden { display: none !important; }
+
+    .card-soft {
+      border: 1px solid rgba(0,0,0,.05);
+      border-radius: var(--npru-radius);
+      box-shadow: var(--npru-shadow);
+      background: #fff;
+    }
+
+    .report-card {
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .report-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 38px rgba(23,23,23,.10);
+      border-color: rgba(215,25,32,.25);
+    }
+
+    .btn-danger, .bg-danger {
+      background-color: var(--npru-red) !important;
+      border-color: var(--npru-red) !important;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--npru-red-dark) !important;
+      border-color: var(--npru-red-dark) !important;
+    }
+
+    .btn-success {
+      background: #fff;
+      color: var(--npru-red);
+      border: 1px solid #e7b1b4;
+    }
+
+    .btn-success:hover {
+      background: var(--npru-red-soft);
+      color: var(--npru-red-dark);
+      border-color: #dfa0a4;
+    }
+
+    .form-control, .form-select {
+      min-height: 48px;
+      border-radius: 13px;
+      border-color: #dedede;
+      padding: 10px 14px;
+    }
+
+    textarea.form-control { min-height: 110px; }
+
+    .form-control:focus, .form-select:focus {
+      border-color: #de7a7e;
+      box-shadow: 0 0 0 4px rgba(215,25,32,.08);
+    }
+
+    .form-label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #303030;
+    }
+
+    .section-subtitle {
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--npru-red);
+      border-bottom: 2px solid var(--npru-red-soft);
+      padding-bottom: 8px;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    .icon-circle {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--npru-red-soft);
+      color: var(--npru-red);
+      font-size: 25px;
+    }
+
+    .muted { color: var(--npru-muted); }
+
+    .date-time-field { position: relative; }
+
+    .date-time-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      min-height: 56px;
+      border: 1px solid #dedede;
+      border-radius: 15px;
+      background: #fff;
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .date-time-box:hover {
+      border-color: #d98a8e;
+      transform: translateY(-1px);
+    }
+
+    .date-time-icon {
+      width: 52px;
+      height: 56px;
+      flex: 0 0 52px;
+      display: grid;
+      place-items: center;
+      color: var(--npru-red);
+      background: var(--npru-red-soft);
+      border-right: 1px solid #f0dddd;
+      font-size: 19px;
+    }
+
+    .date-time-content {
+      padding: 7px 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .date-time-content .small-label {
+      display: block;
+      font-size: 11px;
+      color: #8a8a8a;
+      margin-bottom: 2px;
+    }
+
+    .date-time-input {
+      border: 0 !important;
+      outline: 0 !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      min-height: 28px !important;
+      width: 100%;
+      background: transparent !important;
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+      cursor: pointer;
+    }
+
+    .quick-date-btn {
+      margin-top: 7px;
+      border: 0;
+      background: transparent;
+      color: var(--npru-red);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 0;
+    }
+
+    .notification-item {
+      border: 1px solid var(--npru-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .notification-item.unread {
+      border-left: 4px solid var(--npru-red);
+      background: #fffafa;
+    }
+
+    .detail-row {
+      padding: 11px 0;
+      border-bottom: 1px dashed #e4e4e4;
+    }
+
+    footer {
+      background: #151515;
+      color: #fff;
+      border-top: 4px solid var(--npru-red);
+    }
+
+    .footer-logo {
+      width: 34px;
+      height: 34px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--npru-red);
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .page-title-accent {
+      width: 42px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--npru-red);
+      margin-bottom: 16px;
+    }
+
+    .modal-content {
+      border-radius: 24px;
+      border: none;
+      overflow: hidden;
+    }
+    .item-img-container {
+      width: 100%;
+      height: 220px;
+      background: #f1f3f5;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #adb5bd;
+      font-size: 3rem;
+      overflow: hidden;
+    }
+    .item-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="#" onclick="goPage('home'); return false;">
+      <span class="brand-logo">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M6 11.5 16 6l10 5.5v10L16 27l-10-5.5v-10Z" fill="white" opacity=".98"/>
+          <path d="m10 13.8 6-3.3 6 3.3-6 3.3-6-3.3Z" fill="#d71920"/>
+          <path d="M16 17.1v7.2" stroke="#d71920" stroke-width="2" stroke-linecap="round"/>
+          <path d="m10 15.2 3 1.7v4.3l-3-1.7v-4.3Z" fill="#d71920"/>
+          <path d="m22 15.2-3 1.7v4.3l3-1.7v-4.3Z" fill="#d71920"/>
+        </svg>
+      </span>
+      <span class="brand-title">
+        NPRU 
+        <small>LOST &amp; FOUND</small>
+      </span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="#" onclick="goPage('home'); return false;">หน้าหลัก</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="openReportPage('LOST'); return false;">แจ้งของหาย</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="openReportPage('FOUND'); return false;">แจ้งพบของ</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" onclick="openSearch(); return false;">ค้นหา</a></li>
+        <li class="nav-item" id="navMyReports"><a class="nav-link" href="#" onclick="openMyReports(); return false;">รายการของฉัน</a></li>
+        <li class="nav-item" id="navNotifications"><a class="nav-link" href="#" onclick="openNotifications(); return false;">แจ้งเตือน</a></li>
+        <li class="nav-item d-none" id="navAdmin"><a class="nav-link" href="#" onclick="openAdmin(); return false;">ผู้ดูแลระบบ</a></li>
+      </ul>
+
+      <div class="d-flex gap-2 align-items-center">
+        <button id="navUserName" class="btn btn-link btn-sm text-secondary text-decoration-none d-none" onclick="openProfile()"></button>
+        <button id="navLoginBtn" class="btn btn-outline-dark btn-sm" onclick="goPage('login')">เข้าสู่ระบบ</button>
+        <button id="navRegisterBtn" class="btn btn-dark btn-sm" onclick="goPage('register')">สมัครสมาชิก</button>
+        <button id="navLogoutBtn" class="btn btn-danger btn-sm d-none" onclick="logout()">ออกจากระบบ</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HOME -->
+  <section id="page-home" class="page">
+    <div class="container">
+      <div class="hero p-4 p-md-5 mb-4">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-8">
+            <span class="badge text-bg-danger mb-3 px-3 py-2">NPRU LOST &amp; FOUND</span>
+            <h1 class="display-5 fw-bold">แจ้งง่าย ค้นหาเร็ว คืนของให้เจ้าของ</h1>
+            <p class="lead text-secondary">ระบบแจ้งของหายและของที่พบภายในมหาวิทยาลัย ช่วยให้ติดตามสถานะของรายการได้ตั้งแต่แจ้งจนถึงคืนเจ้าของ</p>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-danger btn-lg" onclick="openReportPage('LOST')"><i class="bi bi-exclamation-circle me-1"></i>แจ้งของหาย</button>
+              <button class="btn btn-success btn-lg" onclick="openReportPage('FOUND')"><i class="bi bi-check-circle me-1"></i>แจ้งพบของ</button>
+              <button class="btn btn-outline-dark btn-lg" onclick="openSearch()"><i class="bi bi-search me-1"></i>ค้นหา</button>
+              <button class="btn btn-outline-secondary btn-lg" onclick="openMyReports()"><i class="bi bi-card-checklist me-1"></i>รายการของฉัน</button>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="card card-soft p-4 bg-white text-center">
+              <div class="icon-circle mx-auto mb-3"><i class="bi bi-box-seam"></i></div>
+              <h5 class="fw-bold">สถานะติดตามได้</h5>
+              <p class="muted mb-0">เมื่อผู้ใช้งานเปลี่ยนสถานะ ระบบจะแจ้งให้ทราบผ่านหน้า “รายการของฉัน” และ “แจ้งเตือน”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page-title-accent"></div><h3 class="fw-bold mb-3">ภาพรวมระบบ</h3>
+      <div class="row g-3">
+        <div class="col-6 col-lg-2"><div class="card card-soft p-3 h-100"><div class="small muted">ทั้งหมด</div><div id="statTotal" class="fs-3 fw-bold">0</div></div></div>
+        <div class="col-6 col-lg-2"><div class="card card-soft p-3 h-100"><div class="small muted">ของหาย</div><div id="statLost" class="fs-3 fw-bold">0</div></div></div>
+        <div class="col-6 col-lg-2"><div class="card card-soft p-3 h-100"><div class="small muted">ของที่พบ</div><div id="statFound" class="fs-3 fw-bold">0</div></div></div>
+        <div class="col-6 col-lg-2"><div class="card card-soft p-3 h-100"><div class="small muted">กำลังดำเนินการ</div><div id="statOpen" class="fs-3 fw-bold">0</div></div></div>
+        <div class="col-6 col-lg-2"><div class="card card-soft p-3 h-100"><div class="small muted">ติดต่อแล้ว</div><div id="statContacted" class="fs-3 fw-bold">0</div></div></div>
+        <div class="col-6 col-lg-2"><div class="card card-soft p-3 h-100"><div class="small muted">คืนเจ้าของแล้ว</div><div id="statReturned" class="fs-3 fw-bold">0</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOGIN -->
+  <section id="page-login" class="page hidden">
+    <div class="container" style="max-width:520px">
+      <div class="card card-soft p-4 p-md-5">
+        <div class="page-title-accent"></div><h2 class="fw-bold mb-2">เข้าสู่ระบบ</h2>
+        <p class="text-secondary">เข้าสู่ระบบเพื่อแจ้งของและติดตามสถานะ</p>
+        <form onsubmit="return login(event);">
+          <div class="mb-3"><label class="form-label">อีเมล</label><input id="loginEmail" type="email" class="form-control" required placeholder="name@npru.ac.th"></div>
+          <div class="mb-3"><label class="form-label">รหัสผ่าน</label><input id="loginPassword" type="password" class="form-control" required></div>
+          <button class="btn btn-dark w-100" type="submit">เข้าสู่ระบบ</button>
+        </form>
+        <div class="text-center mt-3"><a href="#" onclick="goPage('register'); return false;">ยังไม่มีบัญชี? สมัครสมาชิก</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REGISTER (ฟอร์มสมัครสมาชิกปรับปรุงใหม่) -->
+  <section id="page-register" class="page hidden">
+    <div class="container" style="max-width:650px">
+      <div class="card card-soft p-4 p-md-5">
+        <div class="page-title-accent"></div>
+        <h2 class="fw-bold mb-2">สมัครสมาชิก</h2>
+        <p class="text-secondary">กรอกข้อมูลเพื่อสมัครใช้งานระบบ</p>
+        
+        <form id="registerForm" onsubmit="handleRegister(event)">
+          <div class="mb-3">
+            <label for="regFullName" class="form-label">ชื่อ-นามสกุล</label>
+            <input type="text" class="form-control" id="regFullName" required placeholder="เช่น สมชาย ใจดี">
+          </div>
+
+          <div class="mb-3">
+            <label for="regStudentId" class="form-label">รหัสนักศึกษา</label>
+            <input type="text" class="form-control" id="regStudentId" required placeholder="เช่น 644259001">
+          </div>
+
+          <div class="mb-3">
+            <label for="regEmail" class="form-label">อีเมล</label>
+            <input type="email" class="form-control" id="regEmail" required placeholder="name@npru.ac.th">
+          </div>
+
+          <div class="mb-3">
+            <label for="regPhone" class="form-label">เบอร์โทรศัพท์</label>
+            <input type="tel" class="form-control" id="regPhone" required placeholder="08X-XXX-XXXX">
+          </div>
+
+          <div class="mb-3">
+            <label for="regPassword" class="form-label">รหัสผ่าน</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="regPassword" required placeholder="กำหนดรหัสผ่าน">
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('regPassword', 'toggleRegPassIcon')">
+                <i id="toggleRegPassIcon" class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div class="form-text text-muted small mt-1">
+              <i class="bi bi-info-circle me-1"></i>รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร และมีตัวพิมพ์ใหญ่ (A-Z) อย่างน้อย 1 ตัว
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="regConfirmPassword" class="form-label">ยืนยันรหัสผ่าน</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="regConfirmPassword" required placeholder="กรอกรหัสผ่านอีกครั้ง">
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('regConfirmPassword', 'toggleConfirmPassIcon')">
+                <i id="toggleConfirmPassIcon" class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="consentCheck" required>
+            <label class="form-check-label small" for="consentCheck">
+              ฉันยินยอมให้เก็บและใช้ข้อมูลตาม <a href="#" onclick="showPrivacyPolicy(); return false;">Privacy Notice</a>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100 py-2 fs-6 fw-semibold">สมัครสมาชิก</button>
+        </form>
+        
+        <div class="text-center mt-3">
+          <a href="#" onclick="goPage('login'); return false;" class="text-decoration-none small">มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOST -->
+  <section id="page-lost" class="page hidden">
+    <div class="container" style="max-width:800px">
+      <div class="card card-soft p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+          <div><h2 class="fw-bold mb-1">แจ้งของหาย</h2><p class="text-secondary mb-0">กรอกข้อมูลสิ่งของที่หาย</p></div>
+          <span class="badge text-bg-danger">LOST</span>
+        </div>
+        <form onsubmit="return submitReport(event, 'LOST');">
+          <div class="row g-3">
+            <div class="col-12"><div class="section-subtitle"><i class="bi bi-box-seam me-2"></i>ข้อมูลสิ่งของ</div></div>
+            <div class="col-md-6"><label class="form-label">ชื่อสิ่งของ <span class="text-danger">*</span></label><input id="lostItemName" class="form-control" required placeholder="เช่น กระเป๋าสตางค์, หูฟัง"></div>
+            
+            <div class="col-md-6">
+              <label class="form-label">หมวดหมู่ <span class="text-danger">*</span></label>
+              <select id="lostCategoryId" class="form-select" required onchange="toggleOtherInput(this, 'lostCategoryOtherGroup')">
+                <option value="">เลือกหมวดหมู่...</option>
+              </select>
+            </div>
+
+            <div class="col-12 hidden" id="lostCategoryOtherGroup">
+              <label class="form-label">ระบุหมวดหมู่เพิ่มเติม <span class="text-danger">*</span></label>
+              <input id="lostCategoryOther" class="form-control" placeholder="ระบุหมวดหมู่สิ่งของ">
+            </div>
+
+            <div class="col-12"><label class="form-label">รายละเอียดสิ่งของ <span class="text-danger">*</span></label><textarea id="lostDescription" class="form-control" rows="3" required placeholder="ระบุรายละเอียด เช่น สี ยี่ห้อ"></textarea></div>
+            <div class="col-12"><label class="form-label">ลักษณะเด่น</label><textarea id="lostDistinguishingMark" class="form-control" rows="2" placeholder="เช่น มีสติกเกอร์ / รอยขีด / ตำหนิเฉพาะ"></textarea></div>
+            <div class="col-md-6 date-time-field">
+              <label class="form-label">วันที่หาย <span class="text-danger">*</span></label>
+              <div class="date-time-box" onclick="openDateTimePicker('lostDate')">
+                <div class="date-time-icon"><i class="bi bi-calendar3"></i></div>
+                <div class="date-time-content">
+                  <span class="small-label">เลือกวันที่</span>
+                  <input id="lostDate" type="date" class="date-time-input" required onclick="event.stopPropagation()">
+                </div>
+              </div>
+              <button type="button" class="quick-date-btn" onclick="setToday('lostDate')"><i class="bi bi-calendar-check me-1"></i>ใช้วันนี้</button>
+            </div>
+            <div class="col-md-6 date-time-field">
+              <label class="form-label">เวลาที่หาย</label>
+              <div class="date-time-box" onclick="openDateTimePicker('lostTime')">
+                <div class="date-time-icon"><i class="bi bi-clock"></i></div>
+                <div class="date-time-content">
+                  <span class="small-label">เลือกเวลา</span>
+                  <input id="lostTime" type="time" class="date-time-input" onclick="event.stopPropagation()">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">สถานที่ที่หาย <span class="text-danger">*</span></label>
+              <select id="lostLocationId" class="form-select" required onchange="toggleOtherInput(this, 'lostLocationOtherGroup')">
+                <option value="">เลือกสถานที่...</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 hidden" id="lostLocationOtherGroup">
+              <label class="form-label">ระบุสถานที่เพิ่มเติม <span class="text-danger">*</span></label>
+              <input id="lostLocationOther" class="form-control" placeholder="ระบุชื่อสถานที่/จุดที่หาย">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">รายละเอียดจุดที่หายเพิ่มเติม</label>
+              <input id="lostLocationDetail" class="form-control" placeholder="เช่น ชั้น 2 หน้าห้อง 204 ใกล้บันได">
+            </div>
+            <div class="col-md-6"><label class="form-label">รูปภาพ (ถ้ามี)</label><input id="lostImage" type="file" accept="image/*" class="form-control"></div>
+
+            <div class="col-12"><div class="section-subtitle"><i class="bi bi-person-lines-fill me-2"></i>ข้อมูลผู้แจ้งและการติดต่อ</div></div>
+            <div class="col-md-6"><label class="form-label">ชื่อผู้แจ้ง <span class="text-danger">*</span></label><input id="lostReporterName" class="form-control" required placeholder="ชื่อ-นามสกุล"></div>
+            <div class="col-md-6"><label class="form-label">เบอร์โทรศัพท์ติดต่อ <span class="text-danger">*</span></label><input id="lostReporterPhone" class="form-control" required placeholder="08X-XXX-XXXX"></div>
+            <div class="col-md-6"><label class="form-label">Line ID / Facebook</label><input id="lostReporterSocial" class="form-control" placeholder="สำหรับการติดต่อกลับอย่างรวดเร็ว"></div>
+            <div class="col-md-6"><label class="form-label">อีเมล</label><input id="lostReporterEmail" type="email" class="form-control" placeholder="name@npru.ac.th"></div>
+
+            <div class="col-12 mt-4"><button class="btn btn-danger w-100 py-2 fs-5" type="submit">ส่งแจ้งของหาย</button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUND -->
+  <section id="page-found" class="page hidden">
+    <div class="container" style="max-width:800px">
+      <div class="card card-soft p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+          <div><h2 class="fw-bold mb-1">แจ้งพบของ</h2><p class="text-secondary mb-0">กรอกข้อมูลสิ่งของที่พบ</p></div>
+          <span class="badge text-bg-success">FOUND</span>
+        </div>
+        <form onsubmit="return submitReport(event, 'FOUND');">
+          <div class="row g-3">
+            <div class="col-12"><div class="section-subtitle"><i class="bi bi-box-seam me-2"></i>ข้อมูลสิ่งของที่พบ</div></div>
+            <div class="col-md-6"><label class="form-label">ชื่อสิ่งของ <span class="text-danger">*</span></label><input id="foundItemName" class="form-control" required placeholder="เช่น กุญแจรถ, บัตรนักศึกษา"></div>
+            
+            <div class="col-md-6">
+              <label class="form-label">หมวดหมู่ <span class="text-danger">*</span></label>
+              <select id="foundCategoryId" class="form-select" required onchange="toggleOtherInput(this, 'foundCategoryOtherGroup')">
+                <option value="">เลือกหมวดหมู่...</option>
+              </select>
+            </div>
+
+            <div class="col-12 hidden" id="foundCategoryOtherGroup">
+              <label class="form-label">ระบุหมวดหมู่เพิ่มเติม <span class="text-danger">*</span></label>
+              <input id="foundCategoryOther" class="form-control" placeholder="ระบุหมวดหมู่สิ่งของ">
+            </div>
+
+            <div class="col-12"><label class="form-label">รายละเอียดสิ่งของ <span class="text-danger">*</span></label><textarea id="foundDescription" class="form-control" rows="3" required placeholder="ระบุรายละเอียด เช่น สี ยี่ห้อ สภาพสิ่งของ"></textarea></div>
+            <div class="col-12"><label class="form-label">ลักษณะเด่น</label><textarea id="foundDistinguishingMark" class="form-control" rows="2" placeholder="เช่น สติ๊กเกอร์ พวงกุญแจที่ติดอยู่"></textarea></div>
+            <div class="col-md-6 date-time-field">
+              <label class="form-label">วันที่พบ <span class="text-danger">*</span></label>
+              <div class="date-time-box" onclick="openDateTimePicker('foundDate')">
+                <div class="date-time-icon"><i class="bi bi-calendar3"></i></div>
+                <div class="date-time-content">
+                  <span class="small-label">เลือกวันที่</span>
+                  <input id="foundDate" type="date" class="date-time-input" required onclick="event.stopPropagation()">
+                </div>
+              </div>
+              <button type="button" class="quick-date-btn" onclick="setToday('foundDate')"><i class="bi bi-calendar-check me-1"></i>ใช้วันนี้</button>
+            </div>
+            <div class="col-md-6 date-time-field">
+              <label class="form-label">เวลาที่พบ</label>
+              <div class="date-time-box" onclick="openDateTimePicker('foundTime')">
+                <div class="date-time-icon"><i class="bi bi-clock"></i></div>
+                <div class="date-time-content">
+                  <span class="small-label">เลือกเวลา</span>
+                  <input id="foundTime" type="time" class="date-time-input" onclick="event.stopPropagation()">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">สถานที่ที่พบ <span class="text-danger">*</span></label>
+              <select id="foundLocationId" class="form-select" required onchange="toggleOtherInput(this, 'foundLocationOtherGroup')">
+                <option value="">เลือกสถานที่...</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 hidden" id="foundLocationOtherGroup">
+              <label class="form-label">ระบุสถานที่เพิ่มเติม <span class="text-danger">*</span></label>
+              <input id="foundLocationOther" class="form-control" placeholder="ระบุชื่อสถานที่/จุดที่พบ">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">รายละเอียดจุดที่พบเพิ่มเติม</label>
+              <input id="foundLocationDetail" class="form-control" placeholder="เช่น ชั้น 1 หน้าห้อง 105 ใกล้ลิฟต์">
+            </div>
+            <div class="col-md-6"><label class="form-label">จุดรับคืน / ฝากไว้ที่ไหน</label><input id="foundKeeperLocation" class="form-control" placeholder="เช่น ฝากไว้ที่ป้อมยาม / คณะวิทยาการจัดการ ชั้น 1"></div>
+            <div class="col-md-6"><label class="form-label">รูปภาพสิ่งของที่พบ (ถ้ามี)</label><input id="foundImage" type="file" accept="image/*" class="form-control"></div>
+
+            <div class="col-12"><div class="section-subtitle"><i class="bi bi-person-lines-fill me-2"></i>ข้อมูลผู้แจ้งพบและการติดต่อ</div></div>
+            <div class="col-md-6"><label class="form-label">ชื่อผู้แจ้งพบ <span class="text-danger">*</span></label><input id="foundReporterName" class="form-control" required placeholder="ชื่อ-นามสกุล"></div>
+            <div class="col-md-6"><label class="form-label">เบอร์โทรศัพท์ติดต่อ <span class="text-danger">*</span></label><input id="foundReporterPhone" class="form-control" required placeholder="08X-XXX-XXXX"></div>
+            <div class="col-md-6"><label class="form-label">Line ID / Facebook</label><input id="foundReporterSocial" class="form-control" placeholder="สำหรับการติดต่อกลับ"></div>
+            <div class="col-md-6"><label class="form-label">อีเมล</label><input id="foundReporterEmail" type="email" class="form-control" placeholder="name@npru.ac.th"></div>
+
+            <div class="col-12 mt-4"><button class="btn btn-success w-100 py-2 fs-5" type="submit">ส่งแจ้งพบของ</button></div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <section id="page-search" class="page hidden">
+    <div class="container">
+      <div class="card card-soft p-4 mb-4">
+        <h2 class="fw-bold mb-3">ค้นหารายการ</h2>
+        <form onsubmit="return searchItem(event);">
+          <div class="row g-3">
+            <div class="col-lg-4"><label class="form-label">คำค้นหา</label><input id="searchKeyword" class="form-control" placeholder="ชื่อของ / รายละเอียด / ลักษณะเด่น"></div>
+            <div class="col-lg-2"><label class="form-label">ประเภท</label><select id="searchType" class="form-select"><option value="">ทั้งหมด</option><option value="LOST">ของหาย</option><option value="FOUND">ของที่พบ</option></select></div>
+            <div class="col-lg-2 d-flex align-items-end"><button class="btn btn-dark w-100" type="submit">ค้นหา</button></div>
+          </div>
+        </form>
+      </div>
+      <div id="searchResults" class="row g-3"></div>
+    </div>
+  </section>
+
+  <!-- MY REPORTS -->
+  <section id="page-my-reports" class="page hidden">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div><h2 class="fw-bold mb-1">รายการของฉัน</h2><p class="text-secondary mb-0">ติดตามสถานะรายการที่คุณแจ้งไว้ (คลิกที่การ์ดเพื่อดูรายละเอียด)</p></div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-dark" onclick="openReportPage('LOST')">แจ้งของหาย</button>
+          <button class="btn btn-outline-success" onclick="openReportPage('FOUND')">แจ้งพบของ</button>
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button class="btn btn-sm btn-dark" onclick="filterMyReports('ALL')">ทั้งหมด</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="filterMyReports('LOST')">ของหาย</button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="filterMyReports('FOUND')">ของที่พบ</button>
+      </div>
+
+      <div id="myReportsResults" class="row g-3"></div>
+    </div>
+  </section>
+
+  <!-- NOTIFICATIONS -->
+  <section id="page-notifications" class="page hidden">
+    <div class="container" style="max-width:850px">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h2 class="fw-bold mb-1">การแจ้งเตือน</h2><p class="text-secondary mb-0">แจ้งเมื่อสถานะรายการของคุณเปลี่ยน</p></div>
+      </div>
+      <div id="notificationsResults"></div>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="page-profile" class="page hidden">
+    <div class="container" style="max-width:650px">
+      <div class="card card-soft p-4 p-md-5">
+        <h2 class="fw-bold mb-4">โปรไฟล์</h2>
+        <div class="detail-row"><strong>ชื่อ-นามสกุล</strong><div id="profileName">-</div></div>
+        <div class="detail-row"><strong>รหัสนักศึกษา</strong><div id="profileStudentId">-</div></div>
+        <div class="detail-row"><strong>อีเมล</strong><div id="profileEmail">-</div></div>
+        <div class="detail-row"><strong>เบอร์โทรศัพท์</strong><div id="profilePhone">-</div></div>
+        <div class="detail-row"><strong>สิทธิ์</strong><div id="profileRole">-</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="page-admin" class="page hidden">
+    <div class="container">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h2 class="fw-bold mb-1">ผู้ดูแลระบบ</h2><p class="text-secondary mb-0">จัดการรายงาน ผู้ใช้งาน และสถานะ</p></div>
+        <button class="btn btn-outline-dark" onclick="loadAdmin()"><i class="bi bi-arrow-clockwise me-1"></i>รีเฟรช</button>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="card card-soft p-3"><div class="small muted">ผู้ใช้ทั้งหมด</div><div id="adminUserTotal" class="fs-3 fw-bold">-</div></div></div>
+        <div class="col-6 col-md-3"><div class="card card-soft p-3"><div class="small muted">รายการทั้งหมด</div><div id="adminReportTotal" class="fs-3 fw-bold">-</div></div></div>
+        <div class="col-6 col-md-3"><div class="card card-soft p-3"><div class="small muted">กำลังดำเนินการ</div><div id="adminOpenTotal" class="fs-3 fw-bold">-</div></div></div>
+        <div class="col-6 col-md-3"><div class="card card-soft p-3"><div class="small muted">คืน/ปิดแล้ว</div><div id="adminReturnedTotal" class="fs-3 fw-bold">-</div></div></div>
+      </div>
+
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAdminReports">รายงาน</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAdminUsers">ผู้ใช้งาน</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAdminCategories">หมวดหมู่</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAdminLocations">สถานที่</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAdminLogs">Audit Logs</button></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane fade show active" id="tabAdminReports">
+          <div class="table-responsive bg-white rounded-4 shadow-sm p-2"><table class="table table-hover"><thead><tr><th>ประเภท</th><th>สิ่งของ</th><th>สถานะ</th><th>ผู้แจ้ง</th><th>วันที่</th><th>เปลี่ยนสถานะ</th></tr></thead><tbody id="adminReportsBody"></tbody></table></div>
+        </div>
+        <div class="tab-pane fade" id="tabAdminUsers">
+          <div class="table-responsive bg-white rounded-4 shadow-sm p-2"><table class="table table-hover"><thead><tr><th>ชื่อ</th><th>อีเมล</th><th>Role</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="adminUsersBody"></tbody></table></div>
+        </div>
+        <div class="tab-pane fade" id="tabAdminCategories">
+          <div class="card card-soft p-3 mb-3"><form class="row g-2" onsubmit="createAdminCategory(); return false;"><div class="col-md-8"><input id="newCategoryName" class="form-control" placeholder="ชื่อหมวดหมู่" required></div><div class="col-md-4"><button class="btn btn-dark w-100">เพิ่มหมวดหมู่</button></div></form></div>
+          <div class="table-responsive bg-white rounded-4 shadow-sm p-2"><table class="table table-hover"><thead><tr><th>ID</th><th>ชื่อ</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="adminCategoriesBody"></tbody></table></div>
+        </div>
+        <div class="tab-pane fade" id="tabAdminLocations">
+          <div class="card card-soft p-3 mb-3"><form class="row g-2" onsubmit="createAdminLocation(); return false;"><div class="col-md-5"><input id="newLocationName" class="form-control" placeholder="ชื่อสถานที่" required></div><div class="col-md-5"><input id="newLocationDescription" class="form-control" placeholder="รายละเอียด"></div><div class="col-md-2"><button class="btn btn-dark w-100">เพิ่ม</button></div></form></div>
+          <div class="table-responsive bg-white rounded-4 shadow-sm p-2"><table class="table table-hover"><thead><tr><th>ID</th><th>สถานที่</th><th>รายละเอียด</th><th>สถานะ</th><th>จัดการ</th></tr></thead><tbody id="adminLocationsBody"></tbody></table></div>
+        </div>
+        <div class="tab-pane fade" id="tabAdminLogs">
+          <div class="table-responsive bg-white rounded-4 shadow-sm p-2"><table class="table table-hover"><thead><tr><th>เวลา</th><th>Action</th><th>Target</th><th>รายละเอียด</th></tr></thead><tbody id="adminLogsBody"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ITEM DETAILS MODAL -->
+<div class="modal fade" id="itemDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content card-soft p-3 p-md-4">
+      <div class="modal-header border-0 pb-0">
+        <div class="d-flex align-items-center gap-2">
+          <span id="modalTypeBadge" class="badge bg-danger fs-6 px-3 py-2">LOST</span>
+          <span id="modalStatusBadge" class="badge bg-warning text-dark fs-6 px-3 py-2">กำลังดำเนินการ</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-5">
+            <div class="item-img-container" id="modalImgBox">
+              <i class="bi bi-image"></i>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <h3 class="fw-bold mb-1" id="modalTitle">ชื่อสิ่งของ</h3>
+            <p class="text-secondary mb-3"><i class="bi bi-tag me-1"></i>หมวดหมู่: <span id="modalCategory" class="fw-semibold">-</span></p>
+
+            <div class="mb-3">
+              <h6 class="fw-bold text-dark mb-1">รายละเอียดสิ่งของ</h6>
+              <p id="modalDescription" class="text-secondary small mb-0">-</p>
+            </div>
+
+            <div class="mb-3">
+              <h6 class="fw-bold text-dark mb-1">ลักษณะเด่น</h6>
+              <p id="modalMark" class="text-secondary small mb-0">-</p>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <div class="p-2 bg-light rounded-3">
+                  <small class="d-block text-muted" style="font-size:11px;">วันที่เวลา</small>
+                  <strong id="modalDateTime" class="small text-dark">-</strong>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 bg-light rounded-3">
+                  <small class="d-block text-muted" style="font-size:11px;">สถานที่</small>
+                  <strong id="modalLocation" class="small text-dark">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <div id="modalKeeperGroup" class="mb-3 d-none">
+              <div class="p-2 bg-light rounded-3 border-start border-3 border-success">
+                <small class="d-block text-muted" style="font-size:11px;">จุดรับคืน / ฝากไว้ที่</small>
+                <strong id="modalKeeper" class="small text-dark">-</strong>
+              </div>
+            </div>
+
+            <div class="border-top pt-3 mt-3">
+              <h6 class="fw-bold text-dark mb-2"><i class="bi bi-person-circle me-1"></i>ข้อมูลผู้แจ้ง</h6>
+              <div class="small text-secondary">
+                <div><span class="text-muted">ชื่อ:</span> <span id="modalReporterName" class="fw-semibold text-dark">-</span></div>
+                <div><span class="text-muted">โทร:</span> <span id="modalReporterPhone" class="fw-semibold text-dark">-</span></div>
+                <div><span class="text-muted">Social:</span> <span id="modalReporterSocial" class="fw-semibold text-dark">-</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0 d-flex justify-content-between">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">ปิด</button>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-success btn-sm" onclick="changeStatus('RETURNED')"><i class="bi bi-check2-circle me-1"></i>ได้รับของแล้ว</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="py-4">
+  <div class="container">
+    <div class="text-center small">
+      <span class="footer-logo">
+        <i class="bi bi-box-seam text-white"></i>
+      </span>
+      <strong>NPRU Lost &amp; Found</strong><br>
+      <span class="opacity-75">ระบบแจ้งของหายและของที่พบภายในมหาวิทยาลัย</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let currentUser = null;
+  let userToken = localStorage.getItem('npru_token') || null;
+  let activeItemId = null;
+  let masterCategories = [];
+  let masterLocations = [];
+  let myReportsList = [];
+
+  /* --- PRIVACY POLICY MODAL --- */
+  function showPrivacyPolicy() {
+    Swal.fire({
+      title: '<strong>ข้อตกลงและนโยบายความเป็นส่วนตัว (Privacy Notice)</strong>',
+      icon: 'info',
+      html: `
+        <div style="text-align: left; max-height: 360px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; padding-right: 8px;">
+          <p class="fw-bold text-danger mb-1"><i class="bi bi-shield-check me-1"></i>1. วัตถุประสงค์การเก็บรวบรวมข้อมูล</p>
+          <p class="text-secondary mb-3">ระบบ NPRU Lost & Found จัดเก็บข้อมูลส่วนบุคคล ได้แก่ ชื่อ-นามสกุล, รหัสนักศึกษา, เบอร์โทรศัพท์ และอีเมล เพื่อใช้สำหรับยืนยันตัวตน และอำนวยความสะดวกในการติดต่อประสานงานส่งคืนสิ่งของเท่านั้น</p>
+
+          <p class="fw-bold text-danger mb-1"><i class="bi bi-eye-slash me-1"></i>2. การเปิดเผยข้อมูลส่วนบุคคล</p>
+          <p class="text-secondary mb-3">ข้อมูลการติดต่อของคุณจะถูกนำไปใช้เฉพาะช่องทางของระบบเพื่อประสานงานระหว่างผู้แจ้งของหายและผู้พบสิ่งของเท่านั้น โดยจะไม่ถูกนำไปใช้เพื่อประโยชน์ทางพาณิชย์ หรือเปิดเผยแก่บุคคลภายนอกโดยไม่ได้รับอนุญาต</p>
+
+          <p class="fw-bold text-danger mb-1"><i class="bi bi-lock me-1"></i>3. การรักษาความปลอดภัยของข้อมูล</p>
+          <p class="text-secondary mb-3">ระบบมีมาตรการคุ้มครองความปลอดภัยของข้อมูลส่วนบุคคลตามมาตรฐาน เพื่อป้องกันการสูญหาย การเข้าถึง แก้ไข หรือเปิดเผยข้อมูลโดยมิชอบ</p>
+
+          <p class="fw-bold text-danger mb-1"><i class="bi bi-person-gear me-1"></i>4. สิทธิ์ของผู้ใช้งาน (ตาม พ.ร.บ. PDPA)</p>
+          <p class="text-secondary mb-0">ผู้ใช้งานมีสิทธิ์ในการเข้าถึง ตรวจสอบ ขอแก้ไข หรือขอให้ลบข้อมูลส่วนบุคคลของตนเองออกจากระบบได้ โดยติดต่อผ่านผู้ดูแลระบบ (Admin)</p>
+        </div>
+      `,
+      confirmButtonText: 'รับทราบและยอมรับ',
+      confirmButtonColor: '#d71920',
+      customClass: {
+        popup: 'rounded-4'
+      }
+    });
+  }
+
+  /* --- API CALL WRAPPER --- */
+  function apiCall(funcName, ...args) {
+    return new Promise((resolve, reject) => {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        if (typeof google.script.run[funcName] !== 'function') {
+          reject(new Error(`ไม่พบฟังก์ชัน ${funcName} ใน Code.gs (กรุณาอัปเดตไฟล์ Code.gs และทำการ Deploy ใหม่)`));
+          return;
+        }
+        google.script.run
+          .withSuccessHandler(res => resolve(res))
+          .withFailureHandler(err => reject(err))[funcName](...args);
+      } else {
+        console.warn(`[Local Test] Calling ${funcName}`, args);
+        resolve({ success: true, data: [] });
+      }
+    });
+  }
+
+  /* --- INITIALIZATION --- */
+  document.addEventListener('DOMContentLoaded', async function() {
+    goPage('home');
+    setToday('lostDate');
+    setToday('foundDate');
+    
+    await loadMasterData();
+    await checkSession();
+  });
+
+  async function loadMasterData() {
+    try {
+      const resCat = await apiCall('getCategories');
+      if (resCat && resCat.success) {
+        masterCategories = resCat.categories || [];
+        populateSelect('lostCategoryId', masterCategories, 'categoryId', 'categoryName');
+        populateSelect('foundCategoryId', masterCategories, 'categoryId', 'categoryName');
+      }
+
+      const resLoc = await apiCall('getLocations');
+      if (resLoc && resLoc.success) {
+        masterLocations = resLoc.locations || [];
+        populateSelect('lostLocationId', masterLocations, 'locationId', 'locationName');
+        populateSelect('foundLocationId', masterLocations, 'locationId', 'locationName');
+      }
+    } catch (err) {
+      console.error('Failed to load master data:', err);
+    }
+  }
+
+  function populateSelect(elemId, data, valKey, textKey) {
+    const select = document.getElementById(elemId);
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">เลือกข้อมูล...</option>';
+    data.forEach(item => {
+      const opt = document.createElement('option');
+      opt.value = item[valKey];
+      opt.textContent = item[textKey];
+      select.appendChild(opt);
+    });
+    
+    const optOther = document.createElement('option');
+    optOther.value = '__OTHER__';
+    optOther.textContent = 'อื่นๆ (ระบุเอง)';
+    select.appendChild(optOther);
+  }
+
+  async function checkSession() {
+    if (userToken) {
+      try {
+        const user = await apiCall('getUserFromSession', userToken);
+        if (user) {
+          currentUser = user;
+          updateProfileUI();
+        } else {
+          logoutSilent();
+        }
+      } catch (err) {
+        logoutSilent();
+      }
+    }
+
+    // ADMIN page must never remain visible to a normal USER.
+    // This also handles cases where an old/stale page was left open in the browser.
+    const adminPage = document.getElementById('page-admin');
+    if (!currentUser || String(currentUser.role).toUpperCase() !== 'ADMIN') {
+      if (adminPage) {
+        adminPage.classList.add('hidden');
+        adminPage.style.display = 'none';
+      }
+    }
+
+    updateNavbar();
+  }
+
+  // Escape HTML before inserting server data into innerHTML
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/\'/g, '&#039;');
+  }
+
+
+
+  // Escape values before putting them inside JavaScript string attributes
+  function escapeJs(value) {
+    return String(value ?? '')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\"')
+      .replace(/\r/g, '\\r')
+      .replace(/\n/g, '\\n')
+      .replace(/</g, '\\u003C')
+      .replace(/>/g, '\\u003E');
+  }
+
+  /* --- UI & NAVIGATION --- */
+  function goPage(pageId) {
+    // Never allow a non-ADMIN account to open the Admin page.
+    if (pageId === 'admin' && (!currentUser || String(currentUser.role).toUpperCase() !== 'ADMIN')) {
+      Swal.fire('ไม่มีสิทธิ์', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', 'warning');
+      pageId = 'home';
+    }
+
+    document.querySelectorAll('.page').forEach(p => {
+      p.classList.add('hidden');
+      p.style.display = 'none';
+    });
+
+    const target = document.getElementById('page-' + pageId);
+    if (target) {
+      target.classList.remove('hidden');
+      target.style.display = 'block';
+      window.scrollTo(0, 0);
+    }
+  }
+
+  function openReportPage(type) {
+    if (!currentUser) {
+      Swal.fire('กรุณาเข้าสู่ระบบ', 'คุณต้องเข้าสู่ระบบก่อนทำการแจ้งรายการ', 'warning');
+      goPage('login');
+      return;
+    }
+    if (type === 'LOST') goPage('lost');
+    else if (type === 'FOUND') goPage('found');
+  }
+
+  function openSearch() {
+    if (!currentUser) {
+      Swal.fire('กรุณาเข้าสู่ระบบ', 'คุณต้องเข้าสู่ระบบก่อนใช้งานค้นหา', 'warning');
+      goPage('login');
+      return;
+    }
+    goPage('search');
+  }
+
+  function openMyReports() {
+    if (!currentUser) {
+      Swal.fire('กรุณาเข้าสู่ระบบ', 'คุณต้องเข้าสู่ระบบก่อนดูรายการของฉัน', 'warning');
+      goPage('login');
+      return;
+    }
+    goPage('my-reports');
+    fetchMyReports();
+  }
+
+  function openNotifications() {
+    if (!currentUser) {
+      Swal.fire('กรุณาเข้าสู่ระบบ', 'คุณต้องเข้าสู่ระบบก่อนดูการแจ้งเตือน', 'warning');
+      goPage('login');
+      return;
+    }
+    goPage('notifications');
+    loadNotifications();
+  }
+
+  function openProfile() { goPage('profile'); }
+
+  /* --- NOTIFICATIONS FUNCTIONALITY --- */
+  async function loadNotifications() {
+    const container = document.getElementById('notificationsResults');
+    if (!container) return;
+
+    let token = userToken || 
+                localStorage.getItem('npru_token') || 
+                localStorage.getItem('userToken') || 
+                localStorage.getItem('token') || 
+                (currentUser ? currentUser.token : '');
+
+    if (!currentUser || !token) {
+      container.innerHTML = `
+        <div class="card card-soft p-4 text-center">
+          <i class="bi bi-shield-lock fs-1 text-muted mb-2"></i>
+          <h5 class="fw-bold">กรุณาเข้าสู่ระบบ</h5>
+          <p class="text-secondary small mb-3">เข้าสู่ระบบเพื่อดูรายการแจ้งเตือนของคุณ</p>
+          <div>
+            <button class="btn btn-dark btn-sm" onclick="goPage('login')">เข้าสู่ระบบ</button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="text-center py-5">
+        <div class="spinner-border text-danger" role="status"></div>
+        <p class="mt-2 text-muted small">กำลังโหลดรายการแจ้งเตือน...</p>
+      </div>
+    `;
+
+    try {
+      const res = await apiCall('getNotifications', token);
+
+      if (res && res.success && res.data && res.data.length > 0) {
+        container.innerHTML = res.data.map(item => `
+          <div class="notification-item ${item.isRead ? '' : 'unread'}">
+            <div class="d-flex justify-content-between align-items-start gap-2">
+              <h6 class="fw-bold mb-1">${item.title || 'แจ้งเตือน'}</h6>
+              <span class="small text-muted" style="font-size:11px;">${item.createdAt || item.date || ''}</span>
+            </div>
+            <p class="small text-secondary mb-0">${item.message || item.details || ''}</p>
+          </div>
+        `).join('');
+      } else if (res && res.success) {
+        container.innerHTML = `
+          <div class="card card-soft p-5 text-center muted">
+            <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+            ยังไม่มีรายการแจ้งเตือนในขณะนี้
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="alert alert-danger text-center">
+            ${res.message || 'ไม่สามารถดึงข้อมูลการแจ้งเตือนได้'}
+          </div>
+        `;
+      }
+    } catch (err) {
+      console.error('Fetch Notifications Error:', err);
+      container.innerHTML = `
+        <div class="alert alert-danger text-center">
+          เกิดข้อผิดพลาดในการโหลดแจ้งเตือน: ${err.message || 'ระบบขัดข้อง'}
+        </div>
+      `;
+    }
+  }
+
+  function updateNavbar() {
+    const loginBtn = document.getElementById('navLoginBtn');
+    const registerBtn = document.getElementById('navRegisterBtn');
+    const logoutBtn = document.getElementById('navLogoutBtn');
+    const userNameBtn = document.getElementById('navUserName');
+    const navAdmin = document.getElementById('navAdmin');
+
+    if (currentUser) {
+      if (loginBtn) loginBtn.classList.add('d-none');
+      if (registerBtn) registerBtn.classList.add('d-none');
+      if (logoutBtn) logoutBtn.classList.remove('d-none');
+      if (userNameBtn) {
+        userNameBtn.classList.remove('d-none');
+        userNameBtn.innerHTML = `<i class="bi bi-person-circle me-1"></i>สวัสดี, ${currentUser.fullName}`;
+      }
+      
+      if (navAdmin) {
+        if (String(currentUser.role).toUpperCase() === 'ADMIN') {
+          navAdmin.classList.remove('d-none');
+        } else {
+          navAdmin.classList.add('d-none');
+        }
+      }
+
+      ['lostReporterName', 'foundReporterName'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el && !el.value) el.value = currentUser.fullName;
+      });
+      ['lostReporterPhone', 'foundReporterPhone'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el && !el.value) el.value = currentUser.phone;
+      });
+      ['lostReporterEmail', 'foundReporterEmail'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el && !el.value) el.value = currentUser.email;
+      });
+
+    } else {
+      if (loginBtn) loginBtn.classList.remove('d-none');
+      if (registerBtn) registerBtn.classList.remove('d-none');
+      if (logoutBtn) logoutBtn.classList.add('d-none');
+      if (userNameBtn) userNameBtn.classList.add('d-none');
+      if (navAdmin) navAdmin.classList.add('d-none');
+    }
+  }
+
+  function updateProfileUI() {
+    if (!currentUser) return;
+    document.getElementById('profileName').innerText = currentUser.fullName || '-';
+    document.getElementById('profileStudentId').innerText = currentUser.studentId || '-';
+    document.getElementById('profileEmail').innerText = currentUser.email || '-';
+    document.getElementById('profilePhone').innerText = currentUser.phone || '-';
+    document.getElementById('profileRole').innerText = currentUser.role || '-';
+  }
+
+  function toggleOtherInput(selectEl, targetGroupId) {
+    const targetGroup = document.getElementById(targetGroupId);
+    if (!targetGroup) return;
+
+    const inputEl = targetGroup.querySelector('input');
+    if (selectEl.value === '__OTHER__' || selectEl.value === 'other') {
+      targetGroup.classList.remove('hidden');
+      if (inputEl) inputEl.required = true;
+    } else {
+      targetGroup.classList.add('hidden');
+      if (inputEl) {
+        inputEl.required = false;
+        inputEl.value = '';
+      }
+    }
+  }
+
+  /* --- AUTHENTICATION --- */
+  async function login(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    Swal.showLoading();
+    try {
+      const res = await apiCall('loginUser', email, password);
+      Swal.close();
+      if (res.success) {
+        userToken = res.token;
+        currentUser = res.user;
+        localStorage.setItem('npru_token', userToken);
+        
+        updateNavbar();
+        updateProfileUI();
+
+        Swal.fire({
+          icon: 'success',
+          title: 'เข้าสู่ระบบสำเร็จ',
+          text: `ยินดีต้อนรับคุณ ${currentUser.fullName}`,
+          confirmButtonColor: '#d71920'
+        }).then(() => goPage('home'));
+      } else {
+        Swal.fire('เข้าสู่ระบบไม่สำเร็จ', res.message, 'error');
+      }
+    } catch (err) {
+      Swal.fire('เกิดข้อผิดพลาด', err.message || 'ระบบขัดข้อง', 'error');
+    }
+    return false;
+  }
+
+  // สลับการเปิด/ปิด รหัสผ่าน
+  function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+
+    if (!input || !icon) return;
+
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('bi-eye');
+      icon.classList.add('bi-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('bi-eye-slash');
+      icon.classList.add('bi-eye');
+    }
+  }
+
+  // ฟังก์ชันสมัครสมาชิกปรับปรุงใหม่ (รวม Validation + SweetAlert2)
+  async function handleRegister(event) {
+    event.preventDefault();
+
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    const consentChecked = document.getElementById('consentCheck')?.checked || false;
+
+    // 1. ตรวจสอบการยอมรับ Privacy Notice
+    if (!consentChecked) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'กรุณยอมรับเงื่อนไข',
+        text: 'กรุณายินยอมให้เก็บและใช้ข้อมูลตาม Privacy Notice ก่อนสมัครสมาชิก',
+        confirmButtonColor: '#d71920'
+      });
+      return;
+    }
+
+    // 2. ตรวจสอบความยาวรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)
+    if (password.length < 6) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'รหัสผ่านสั้นเกินไป',
+        text: 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร',
+        confirmButtonColor: '#d71920'
+      });
+      return;
+    }
+
+    // 3. ตรวจสอบตัวอักษรพิมพ์ใหญ่ (A-Z)
+    if (!/[A-Z]/.test(password)) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'รหัสผ่านไม่ตรงเงื่อนไข',
+        text: 'รหัสผ่านต้องมีตัวอักษรพิมพ์ใหญ่ (A-Z) อย่างน้อย 1 ตัว',
+        confirmButtonColor: '#d71920'
+      });
+      return;
+    }
+
+    // 4. ตรวจสอบรหัสผ่านว่าตรงกันหรือไม่
+    if (password !== confirmPassword) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'รหัสผ่านไม่ตรงกัน',
+        text: 'รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง',
+        confirmButtonColor: '#d71920'
+      });
+      return;
+    }
+
+    const userData = {
+      fullName: document.getElementById('regFullName').value.trim(),
+      studentId: document.getElementById('regStudentId').value.trim(),
+      email: document.getElementById('regEmail').value.trim(),
+      phone: document.getElementById('regPhone').value.trim(),
+      password: password,
+      consent: {
+        privacyNoticeAccepted: consentChecked,
+        consentAccepted: consentChecked
+      }
+    };
+
+    // แสดงการโหลด และล็อกปุ่ม
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.dataset.originalText = submitBtn.innerText;
+      submitBtn.innerText = 'กำลังบันทึกข้อมูล...';
+    }
+    Swal.showLoading();
+
+    try {
+      const res = await apiCall('registerUser', userData);
+      
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = submitBtn.dataset.originalText;
+      }
+
+      if (res && res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'สมัครสมาชิกสำเร็จ',
+          text: res.message || 'สร้างบัญชีผู้ใช้เรียบร้อยแล้ว กรุณาเข้าสู่ระบบ',
+          confirmButtonColor: '#d71920'
+        }).then(() => {
+          document.getElementById('registerForm').reset();
+          goPage('login');
+        });
+      } else {
+        Swal.fire('สมัครสมาชิกไม่สำเร็จ', res ? res.message : 'ไม่สามารถสมัครสมาชิกได้', 'error');
+      }
+    } catch (err) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = submitBtn.dataset.originalText;
+      }
+      Swal.fire('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ', err.message || 'โปรดลองอีกครั้งในภายหลัง', 'error');
+    }
+  }
+
+  function logout() {
+    logoutSilent();
+    Swal.fire({
+      icon: 'info',
+      title: 'ออกจากระบบเรียบร้อย',
+      confirmButtonColor: '#d71920'
+    }).then(() => goPage('home'));
+  }
+
+  function logoutSilent() {
+    currentUser = null;
+    userToken = null;
+    localStorage.removeItem('npru_token');
+    updateNavbar();
+  }
+
+  /* --- REPORT SUBMISSION --- */
+  async function submitReport(e, type) {
+    e.preventDefault();
+    if (!userToken) {
+      Swal.fire('แจ้งเตือน', 'กรุณาเข้าสู่ระบบก่อนทำรายการ', 'warning');
+      return false;
+    }
+
+    const prefix = type.toLowerCase();
+    const fileInput = document.getElementById(prefix + 'Image');
+    let imageUrl = '';
+
+    Swal.showLoading();
+
+    try {
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const base64 = await convertFileToBase64(file);
+        const imgRes = await apiCall('uploadImage', userToken, {
+          base64: base64,
+          mimeType: file.type,
+          fileName: file.name
+        });
+        if (imgRes.success) {
+          imageUrl = imgRes.imageUrl;
+        }
+      }
+
+      const reportData = {
+        type: type,
+        itemName: document.getElementById(prefix + 'ItemName').value,
+        categoryId: document.getElementById(prefix + 'CategoryId').value,
+        categoryOther: document.getElementById(prefix + 'CategoryOther')?.value || '',
+        description: document.getElementById(prefix + 'Description').value,
+        distinguishingMark: document.getElementById(prefix + 'DistinguishingMark').value,
+        date: document.getElementById(prefix + 'Date').value,
+        time: document.getElementById(prefix + 'Time').value,
+        locationId: document.getElementById(prefix + 'LocationId').value,
+        locationOther: document.getElementById(prefix + 'LocationOther')?.value || '',
+        locationDetail: document.getElementById(prefix + 'LocationDetail').value,
+        imageUrl: imageUrl
+      };
+
+      const res = await apiCall('createReport', userToken, reportData);
+      Swal.close();
+
+      if (res.success) {
+        Swal.fire({
+          icon: 'success',
+          title: type === 'LOST' ? 'แจ้งของหายสำเร็จ!' : 'แจ้งพบของสำเร็จ!',
+          text: 'ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว',
+          confirmButtonColor: '#d71920'
+        }).then(() => {
+          document.querySelectorAll(`#page-${prefix} form`)[0].reset();
+          openMyReports();
+        });
+      } else {
+        Swal.fire('บันทึกไม่สำเร็จ', res.message, 'error');
+      }
+    } catch (err) {
+      Swal.fire('เกิดข้อผิดพลาด', err.message || 'ระบบขัดข้อง', 'error');
+    }
+
+    return false;
+  }
+
+  function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  /* --- MY REPORTS & DETAILS --- */
+  async function fetchMyReports() {
+    if (!userToken || !currentUser) return;
+
+    const container = document.getElementById('myReportsResults');
+    container.innerHTML = `<div class="text-center py-5"><div class="spinner-border text-danger" role="status"></div></div>`;
+
+    try {
+      const res = await apiCall('getAllSheetData', 'Reports');
+      if (res.success) {
+        myReportsList = (res.data || []).filter(item => String(item.reporterId) === String(currentUser.userId));
+        filterMyReports('ALL');
+      } else {
+        container.innerHTML = `<div class="text-center py-5 text-danger">ไม่สามารถโหลดข้อมูลได้</div>`;
+      }
+    } catch (err) {
+      container.innerHTML = `<div class="text-center py-5 text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล</div>`;
+    }
+  }
+
+  function filterMyReports(filterType) {
+    const container = document.getElementById('myReportsResults');
+    if (!container) return;
+
+    let filtered = myReportsList;
+    if (filterType !== 'ALL') {
+      filtered = myReportsList.filter(item => item.type === filterType || item.status === filterType);
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="col-12 text-center py-5 muted">
+          <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+          ไม่พบรายการในหมวดหมู่นี้
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = filtered.map(item => {
+      const cat = masterCategories.find(c => c.categoryId === item.categoryId);
+      const loc = masterLocations.find(l => l.locationId === item.locationId);
+
+      return `
+        <div class="col-md-6 col-lg-4">
+          <div class="card card-soft report-card h-100 p-3" onclick="openItemDetail('${item.reportId}')">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge ${item.type === 'LOST' ? 'bg-danger' : 'bg-success'}">${item.type}</span>
+              <span class="badge ${item.status === 'ACTIVE' ? 'bg-warning text-dark' : 'bg-success'}">${item.status === 'ACTIVE' ? 'กำลังดำเนินการ' : 'คืนเจ้าของแล้ว'}</span>
+            </div>
+            <h5 class="fw-bold mb-1">${item.itemName}</h5>
+            <p class="small text-secondary mb-2"><i class="bi bi-geo-alt me-1"></i>${loc ? loc.locationName : item.locationId}</p>
+            <div class="small muted mt-auto pt-2 border-top d-flex justify-content-between">
+              <span>หมวดหมู่: ${cat ? cat.categoryName : item.categoryId}</span>
+              <span>${item.date}</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function openItemDetail(reportId) {
+    const item = myReportsList.find(i => String(i.reportId) === String(reportId));
+    if (!item) return;
+
+    activeItemId = item.reportId;
+    const cat = masterCategories.find(c => c.categoryId === item.categoryId);
+    const loc = masterLocations.find(l => l.locationId === item.locationId);
+
+    const typeBadge = document.getElementById('modalTypeBadge');
+    typeBadge.innerText = item.type;
+    typeBadge.className = `badge fs-6 px-3 py-2 ${item.type === 'LOST' ? 'bg-danger' : 'bg-success'}`;
+
+    const statusBadge = document.getElementById('modalStatusBadge');
+    statusBadge.innerText = item.status === 'ACTIVE' ? 'กำลังดำเนินการ' : 'คืนเจ้าของแล้ว';
+    statusBadge.className = `badge fs-6 px-3 py-2 ${item.status === 'ACTIVE' ? 'bg-warning text-dark' : 'bg-success'}`;
+
+    document.getElementById('modalTitle').innerText = item.itemName;
+    document.getElementById('modalCategory').innerText = cat ? cat.categoryName : item.categoryId;
+    document.getElementById('modalDescription').innerText = item.description || '-';
+    document.getElementById('modalMark').innerText = item.distinguishingMark || '-';
+    document.getElementById('modalDateTime').innerText = `${item.date} (${item.time || 'ไม่ระบุ'})`;
+    document.getElementById('modalLocation').innerText = loc ? loc.locationName : item.locationId;
+
+    const imgBox = document.getElementById('modalImgBox');
+    if (item.imageUrl) {
+      imgBox.innerHTML = `<img src="${item.imageUrl}" alt="${item.itemName}">`;
+    } else {
+      imgBox.innerHTML = `<i class="bi bi-image"></i>`;
+    }
+
+    document.getElementById('modalReporterName').innerText = currentUser.fullName || '-';
+    document.getElementById('modalReporterPhone').innerText = currentUser.phone || '-';
+    document.getElementById('modalReporterSocial').innerText = currentUser.email || '-';
+
+    const modal = new bootstrap.Modal(document.getElementById('itemDetailModal'));
+    modal.show();
+  }
+
+  /* --- ADMIN DASHBOARD --- */
+  async function openAdmin() {
+    if (!currentUser || String(currentUser.role).toUpperCase() !== 'ADMIN') {
+      Swal.fire('ไม่มีสิทธิ์', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', 'warning');
+      return;
+    }
+    goPage('admin');
+    await loadAdmin();
+  }
+
+  async function loadAdmin() {
+    if (!currentUser || String(currentUser.role).toUpperCase() !== 'ADMIN') {
+      Swal.fire('ไม่มีสิทธิ์', 'หน้านี้สำหรับผู้ดูแลระบบเท่านั้น', 'warning');
+      return;
+    }
+    const token = userToken || localStorage.getItem('npru_token') || '';
+    try {
+      const res = await apiCall('getAdminDashboardStats', token);
+      if (!res || !res.success) throw new Error(res?.message || 'โหลดข้อมูล Admin ไม่สำเร็จ');
+      const st = res.stats || {};
+      const totalReports = Number(st.totalLost || 0) + Number(st.totalFound || 0);
+      const openReports = Math.max(0, totalReports - Number(st.totalResolved || 0));
+      const el = id => document.getElementById(id);
+      if (el('adminUserTotal')) el('adminUserTotal').textContent = st.totalUsers || 0;
+      if (el('adminReportTotal')) el('adminReportTotal').textContent = totalReports;
+      if (el('adminOpenTotal')) el('adminOpenTotal').textContent = openReports;
+      if (el('adminReturnedTotal')) el('adminReturnedTotal').textContent = st.totalResolved || 0;
+
+      await Promise.all([
+        loadAdminReports(), loadAdminUsers(), loadAdminCategories(),
+        loadAdminLocations(), loadAdminLogs()
+      ]);
+    } catch (err) {
+      Swal.fire('โหลด Admin ไม่สำเร็จ', err.message || 'ระบบขัดข้อง', 'error');
+    }
+  }
+
+  async function loadAdminReports() {
+    const body = document.getElementById('adminReportsBody');
+    if (!body) return;
+    try {
+      const res = await apiCall('getAdminReports', userToken);
+      if (!res || !res.success) throw new Error(res?.message || 'โหลดรายงานไม่ได้');
+      const reports = res.data || [];
+      const rows = reports.slice().reverse().map(r => {
+        const type = String(r.type || '').toUpperCase();
+        const status = String(r.status || 'ACTIVE').toUpperCase();
+        const badge = type === 'LOST' ? 'text-bg-danger' : 'text-bg-success';
+        const statusClass = status === 'RETURNED' || status === 'CLOSED' ? 'text-bg-success' : 'text-bg-warning';
+        return `<tr>
+          <td><span class="badge ${badge}">${escapeHtml(type)}</span></td>
+          <td class="fw-semibold">${escapeHtml(r.itemName || '-')}</td>
+          <td><span class="badge ${statusClass}">${escapeHtml(status)}</span></td>
+          <td>${escapeHtml(r.reporterId || '-')}</td>
+          <td>${escapeHtml(r.date || '-')}</td>
+          <td><select class="form-select form-select-sm" onchange="changeAdminReportStatus('${escapeJs(r.reportId)}', this.value)">
+            ${[['ACTIVE','กำลังดำเนินการ'],['FOUND','พบของแล้ว'],['CONTACTED','ติดต่อแล้ว'],['RETURNED','คืนเจ้าของแล้ว'],['CLOSED','ปิดรายการ']].map(x => `<option value="${x[0]}" ${x[0]===status?'selected':''}>${x[1]}</option>`).join('')}
+          </select></td>
+        </tr>`;
+      }).join('');
+      body.innerHTML = rows || '<tr><td colspan="6" class="text-center text-muted py-4">ยังไม่มีรายงาน</td></tr>';
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="6" class="text-danger text-center">${escapeHtml(err.message || 'โหลดไม่ได้')}</td></tr>`;
+    }
+  }
+
+  async function changeAdminReportStatus(reportId, status) {
+    const result = await Swal.fire({
+      icon: 'question', title: 'ยืนยันการเปลี่ยนสถานะ?',
+      showCancelButton: true, confirmButtonText: 'ยืนยัน', cancelButtonText: 'ยกเลิก'
+    });
+    if (!result.isConfirmed) { loadAdminReports(); return; }
+    try {
+      const res = await apiCall('updateReportStatus', userToken, reportId, status);
+      if (!res || !res.success) throw new Error(res?.message || 'เปลี่ยนสถานะไม่สำเร็จ');
+      await loadAdminReports();
+      Swal.fire({icon:'success', title:'เปลี่ยนสถานะสำเร็จ', timer:1000, showConfirmButton:false});
+    } catch (err) {
+      Swal.fire('เปลี่ยนสถานะไม่สำเร็จ', err.message || 'ระบบขัดข้อง', 'error');
+      loadAdminReports();
+    }
+  }
+
+  async function loadAdminUsers() {
+    const body = document.getElementById('adminUsersBody');
+    if (!body) return;
+    try {
+      const res = await apiCall('getAdminUsers', userToken);
+      if (!res || !res.success) throw new Error(res?.message || 'โหลดผู้ใช้งานไม่ได้');
+      const users = res.data || [];
+      body.innerHTML = users.map(u => {
+        const status = String(u.status || 'ACTIVE').toUpperCase();
+        const role = String(u.role || 'USER').toUpperCase();
+        const nextStatus = status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        return `<tr>
+          <td>${escapeHtml(u.fullName || '-')}</td><td>${escapeHtml(u.email || '-')}</td>
+          <td>${escapeHtml(role)}</td>
+          <td><span class="badge ${status==='ACTIVE'?'text-bg-success':'text-bg-secondary'}">${escapeHtml(status)}</span></td>
+          <td><button class="btn btn-sm ${status==='ACTIVE'?'btn-outline-danger':'btn-outline-success'}" onclick="changeAdminUserStatus('${escapeJs(u.userId)}','${nextStatus}','${role}')">${status==='ACTIVE'?'ปิดใช้งาน':'เปิดใช้งาน'}</button></td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="5" class="text-center text-muted py-4">ยังไม่มีผู้ใช้งาน</td></tr>';
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="5" class="text-danger text-center">${escapeHtml(err.message || 'โหลดไม่ได้')}</td></tr>`;
+    }
+  }
+
+  async function changeAdminUserStatus(userId, status, role) {
+    const result = await Swal.fire({icon:'question', title:'ยืนยันการเปลี่ยนสถานะผู้ใช้?', showCancelButton:true, confirmButtonText:'ยืนยัน', cancelButtonText:'ยกเลิก'});
+    if (!result.isConfirmed) { loadAdminUsers(); return; }
+    try {
+      const res = await apiCall('updateUserRoleStatus', userToken, userId, role, status);
+      if (!res || !res.success) throw new Error(res?.message || 'เปลี่ยนสถานะไม่สำเร็จ');
+      loadAdminUsers();
+    } catch (err) {
+      Swal.fire('เปลี่ยนสถานะไม่สำเร็จ', err.message || 'ระบบขัดข้อง', 'error');
+    }
+  }
+
+  async function loadAdminCategories() {
+    const body = document.getElementById('adminCategoriesBody');
+    if (!body) return;
+    try {
+      const res = await apiCall('getCategories');
+      const data = res?.categories || [];
+      body.innerHTML = data.map(c => `<tr><td>${escapeHtml(c.categoryId || '-')}</td><td>${escapeHtml(c.categoryName || '-')}</td><td><span class="badge text-bg-success">${escapeHtml(c.status || 'ACTIVE')}</span></td><td>-</td></tr>`).join('') || '<tr><td colspan="4" class="text-center text-muted">ยังไม่มีหมวดหมู่</td></tr>';
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="4" class="text-danger text-center">${escapeHtml(err.message || 'โหลดไม่ได้')}</td></tr>`;
+    }
+  }
+
+  async function createAdminCategory() {
+    const input = document.getElementById('newCategoryName');
+    const name = input?.value.trim();
+    if (!name) return;
+    try {
+      const res = await apiCall('addCategory', userToken, name);
+      if (!res || !res.success) throw new Error(res?.message || 'เพิ่มหมวดหมู่ไม่สำเร็จ');
+      input.value = ''; await loadAdminCategories(); await loadMasterData();
+      Swal.fire({icon:'success', title:'เพิ่มหมวดหมู่แล้ว', timer:900, showConfirmButton:false});
+    } catch (err) { Swal.fire('เพิ่มไม่สำเร็จ', err.message || 'ระบบขัดข้อง', 'error'); }
+  }
+
+  async function loadAdminLocations() {
+    const body = document.getElementById('adminLocationsBody');
+    if (!body) return;
+    try {
+      const res = await apiCall('getLocations');
+      const data = res?.locations || [];
+      body.innerHTML = data.map(l => `<tr><td>${escapeHtml(l.locationId || '-')}</td><td>${escapeHtml(l.locationName || '-')}</td><td>${escapeHtml(l.description || '-')}</td><td><span class="badge text-bg-success">${escapeHtml(l.status || 'ACTIVE')}</span></td><td>-</td></tr>`).join('') || '<tr><td colspan="5" class="text-center text-muted">ยังไม่มีสถานที่</td></tr>';
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="5" class="text-danger text-center">${escapeHtml(err.message || 'โหลดไม่ได้')}</td></tr>`;
+    }
+  }
+
+  async function createAdminLocation() {
+    const name = document.getElementById('newLocationName')?.value.trim();
+    const description = document.getElementById('newLocationDescription')?.value.trim() || '';
+    if (!name) return;
+    try {
+      const res = await apiCall('addLocation', userToken, name, description);
+      if (!res || !res.success) throw new Error(res?.message || 'เพิ่มสถานที่ไม่สำเร็จ');
+      document.getElementById('newLocationName').value = '';
+      document.getElementById('newLocationDescription').value = '';
+      await loadAdminLocations(); await loadMasterData();
+      Swal.fire({icon:'success', title:'เพิ่มสถานที่แล้ว', timer:900, showConfirmButton:false});
+    } catch (err) { Swal.fire('เพิ่มไม่สำเร็จ', err.message || 'ระบบขัดข้อง', 'error'); }
+  }
+
+  async function loadAdminLogs() {
+    const body = document.getElementById('adminLogsBody');
+    if (!body) return;
+    try {
+      const res = await apiCall('getAuditLogs', userToken);
+      const data = res?.data || [];
+      body.innerHTML = data.map(l => `<tr><td>${escapeHtml(l.createdAt || l.timestamp || '-')}</td><td>${escapeHtml(l.action || '-')}</td><td>${escapeHtml(l.targetType || l.targetTable || '-')}</td><td>${escapeHtml(l.details || l.description || '-')}</td></tr>`).join('') || '<tr><td colspan="4" class="text-center text-muted">ยังไม่มี Audit Logs</td></tr>';
+    } catch (err) {
+      body.innerHTML = `<tr><td colspan="4" class="text-danger text-center">${escapeHtml(err.message || 'โหลดไม่ได้')}</td></tr>`;
+    }
+  }
+
+  async function changeStatus(newStatus) {
+    if (!activeItemId) return;
+    if (!userToken) {
+      Swal.fire('แจ้งเตือน', 'กรุณาเข้าสู่ระบบก่อนทำรายการ', 'warning');
+      return;
+    }
+    if (newStatus !== 'RETURNED') return;
+
+    const result = await Swal.fire({
+      title: 'ยืนยันว่าได้รับของแล้ว?',
+      text: 'ระบบจะเปลี่ยนสถานะรายการเป็นคืนเจ้าของแล้ว และแจ้งเฉพาะในหน้า Admin',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'ยืนยัน',
+      cancelButtonText: 'ยกเลิก',
+      confirmButtonColor: '#198754'
+    });
+
+    if (!result.isConfirmed) return;
+
+    Swal.showLoading();
+    try {
+      const res = await apiCall('confirmReportReturned', userToken, activeItemId);
+      Swal.close();
+
+      if (res.success) {
+        const modalEl = document.getElementById('itemDetailModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'ยืนยันเรียบร้อย',
+          text: 'ระบบแจ้งผู้ดูแลระบบแล้ว โดยไม่ส่ง LINE',
+          confirmButtonColor: '#198754'
+        });
+        fetchMyReports();
+      } else {
+        Swal.fire('ทำรายการไม่สำเร็จ', res.message || 'ไม่สามารถเปลี่ยนสถานะได้', 'error');
+      }
+    } catch (err) {
+      Swal.close();
+      Swal.fire('เกิดข้อผิดพลาด', err.message || 'ระบบขัดข้อง', 'error');
+    }
+  }
+
+  function setToday(inputId) {
+    const today = new Date().toISOString().split('T')[0];
+    const el = document.getElementById(inputId);
+    if (el) el.value = today;
+  }
+
+  function openDateTimePicker(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+      if (typeof input.showPicker === 'function') input.showPicker();
+      else input.focus();
+    }
+  }
+
+  function searchItem(e) { 
+    if(e) e.preventDefault(); 
+    return false; 
+  }
+</script>
+</body>
+</html>
